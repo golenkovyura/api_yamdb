@@ -16,7 +16,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -104,6 +104,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
+AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 
@@ -120,3 +121,7 @@ LEN_FOR_NAME = 256
 LEN_FOR_SLUG = 50
 
 CUT_TEXT = 30
+
+MIN_SCORE = 1
+MAX_SCORE = 10
+DEFAULT_SCORE = 1

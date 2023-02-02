@@ -9,6 +9,7 @@ from .validators import validate_year
 
 
 class Category(BaseModelGenreCategory):
+    id = models.AutoField(primary_key=True)
 
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'категория'
@@ -16,6 +17,7 @@ class Category(BaseModelGenreCategory):
 
 
 class Genre(BaseModelGenreCategory):
+    id = models.AutoField(primary_key=True)
 
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'жанр'
@@ -23,6 +25,7 @@ class Genre(BaseModelGenreCategory):
 
 
 class Title(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField('Название', max_length=LEN_FOR_NAME)
     year = models.PositiveSmallIntegerField(
         'Год', db_index=True, validators=[validate_year])
@@ -46,6 +49,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(
@@ -77,6 +81,7 @@ class BaseReviewCommentModel(models.Model):
 class Review(models.Model):
     """Класс отзывов."""
 
+    id = models.AutoField(primary_key=True)
     text = models.TextField(
         verbose_name='Текст'
     )
@@ -130,6 +135,7 @@ class Review(models.Model):
 class Comment(models.Model):
     """Класс комментариев."""
 
+    id = models.AutoField(primary_key=True)
     text = models.TextField(
         verbose_name='Текст'
     )
