@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +22,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'rest_framework',
-    # 'rest_framework_simplejwt',
-    # 'users.apps.UsersConfig',
-    # 'api.apps.ApiConfig',
-    # 'reviews.apps.ReviewsConfig',
-    # 'django_filters'
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'users.apps.UsersConfig',
+    'api.apps.ApiConfig',
+    'reviews.apps.ReviewsConfig',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -41,11 +42,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'api_yamdb.urls'
 
-TEMPLATES_DIR = BASE_DIR / 'templates'
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -111,3 +112,11 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 LENGTH_TEXT_REVIEW = 250
 LENGTH_TEXT_COMMENT = 100
 LIST_PER_PAGE = 10
+
+USERNAME_NAME = 100
+EMAIL = 255
+
+LEN_FOR_NAME = 256
+LEN_FOR_SLUG = 50
+
+CUT_TEXT = 30

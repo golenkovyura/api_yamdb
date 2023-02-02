@@ -1,15 +1,77 @@
 from api_yamdb.settings import LENGTH_TEXT_COMMENT, LENGTH_TEXT_REVIEW
-from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-User = get_user_model()
+from api_yamdb.settings import LEN_FOR_NAME, CUT_TEXT
+from users.models import User
+from .base_models import BaseModelGenreCategory
+from .validators import validate_year
+
+
+class Category(BaseModelGenreCategory):
+
+    class Meta(BaseModelGenreCategory.Meta):
+        verbose_name = 'категория'
+        verbose_name_plural = 'категории'
+
+
+class Genre(BaseModelGenreCategory):
+
+    class Meta(BaseModelGenreCategory.Meta):
+        verbose_name = 'жанр'
+        verbose_name_plural = 'жанры'
 
 
 class Title(models.Model):
-    """Класс произведений."""
+    name = models.CharField('Название', max_length=LEN_FOR_NAME)
+    year = models.PositiveSmallIntegerField(
+        'Год', db_index=True, validators=[validate_year])
+    description = models.TextField('Описание', null=True, blank=True)
+    genre = models.ManyToManyField(Genre, through='GenreTitle')
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='category',
+        verbose_name='категория'
+    )
 
-    pass
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'произведение'
+        verbose_name_plural = 'произведения'
+
+    def __str__(self):
+        return self.name
+
+
+class GenreTitle(models.Model):
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre, on_delete=models.CASCADE, verbose_name='жанры')
+
+    def __str__(self):
+        return f'{self.title} {self.genre}'
+
+    class Meta:
+        verbose_name = 'жанр'
+        verbose_name_plural = 'жанры'
+
+
+class BaseReviewCommentModel(models.Model):
+    """Базовый абстрактный класс для Review и Comment."""
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='Автор')
+    text = models.TextField('Текст')
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+
+    class Meta:
+        abstract = True
+        ordering = ('-pub_date',)
+
+    def __str__(self) -> str:
+        return self.text[:CUT_TEXT]
 
 
 class Review(models.Model):

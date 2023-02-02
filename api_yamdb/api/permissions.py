@@ -1,6 +1,14 @@
 from rest_framework import permissions
 
 
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """Проверка, что админ или суперюзер и безопасный метод"""
+
+    def has_permission(self, request, view):
+        return (request.method in permissions.SAFE_METHODS
+                or (request.user.is_authenticated and request.user.is_admin))
+
+
 class IsSuperUserIsAdminIsModeratorIsAuthor(permissions.BasePermission):
     """
     Разрешает анонимному пользователю только безопасные запросы.
@@ -10,3 +18,10 @@ class IsSuperUserIsAdminIsModeratorIsAuthor(permissions.BasePermission):
     """
 
     pass
+
+
+class IsAdmin(permissions.BasePermission):
+    """Проверка, что админ или суперюзер"""
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.is_admin
