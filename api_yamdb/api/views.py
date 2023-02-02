@@ -1,12 +1,7 @@
-from django.conf import settings
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, viewsets, status, filters
+from rest_framework import permissions, viewsets
 from reviews.models import Review, Title
 from django.db.models import Avg
-from rest_framework.decorators import action, api_view
-from django.db import IntegrityError
-from django.core.mail import send_mail
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
