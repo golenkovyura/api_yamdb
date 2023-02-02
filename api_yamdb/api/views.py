@@ -2,9 +2,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets
 from reviews.models import Review, Title
 from django.db.models import Avg
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from .permissions import (IsSuperUserIsAdminIsModeratorIsAuthor,
                           IsAdminOrReadOnly, IsAdmin)
