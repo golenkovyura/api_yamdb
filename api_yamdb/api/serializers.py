@@ -53,7 +53,7 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
-                'Имя пользователя "me" не разрешено.'
+                'Введите другое имя пользователя.'
             )
         return value
 
@@ -69,7 +69,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
-                'Имя пользователя "me" не разрешено.'
+                'Введите другое имя пользователя.'
             )
         return value
 
