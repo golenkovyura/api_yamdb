@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from reviews.models import Comment, Review, User
+from reviews.models import Comment, Review, Category, Genre, Title
 from api_yamdb.settings import EMAIL, USERNAME_NAME
+from users.models import User
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -83,16 +84,53 @@ class TokenSerializer(serializers.Serializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор для модели Category"""
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор для модели Genre"""
+
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
 
 
 class TitlePostSerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор для модели Title (для записи данных)"""
+
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(), slug_field='slug', many=True
+    )
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(), slug_field='slug'
+    )
+    rating = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Title
+        fields = (
+            'name', 'year', 'description', 'genre', 'category', 'rating'
+        )
+        read_only_fields = ('id', 'rating')
+
+    def to_representation(self, value):
+        return TitleSerializer(value, context=self.context).data
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор для модели Title (для чтения данных)."""
+
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+    rating = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+        read_only_fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
+        )
