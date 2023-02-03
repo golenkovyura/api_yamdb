@@ -19,8 +19,7 @@ from .permissions import (IsSuperUserIsAdminIsModeratorIsAuthor,
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitlePostSerializer,
-                          TitleSerializer, TokenSerializer, UserEditSerializer,
-                          UserSerializer)
+                          TitleSerializer, TokenSerializer, UserSerializer)
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 from .mixins import ListCreateDestroyGenericViewSet
@@ -165,7 +164,6 @@ class UserViewSet(viewsets.ModelViewSet):
         methods=['get', 'patch'],
         detail=False, url_path='me',
         permission_classes=[IsAuthenticated],
-        serializer_class=UserEditSerializer,
     )
     def get_edit_user(self, request):
         user = request.user
