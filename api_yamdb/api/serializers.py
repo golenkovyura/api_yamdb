@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from reviews.models import Comment, Review, User
-
+from api_yamdb.settings import EMAIL, USERNAME_NAME
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Review."""
@@ -41,9 +41,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
-    email = serializers.CharField(required=True)
-    role = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = User
@@ -59,20 +56,24 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
 
-
 class RegistrationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=EMAIL, required=True)
+    username = serializers.CharField(max_length=USERNAME_NAME, required=True)
 
     class Meta:
         model = User
         fields = ('username', 'email',)
+
+    
 
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
                 'Имя пользователя "me" не разрешено.'
             )
+        
         return value
-
+        
 
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)

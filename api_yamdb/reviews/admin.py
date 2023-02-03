@@ -37,9 +37,3 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ('author', 'pub_date')
     list_per_page = LIST_PER_PAGE
     search_fields = ('author',)
-
-
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'role', 'username', 'email',
-                    'bio', 'first_name', 'last_name',)
