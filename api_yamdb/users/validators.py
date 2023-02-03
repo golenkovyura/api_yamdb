@@ -7,7 +7,7 @@ class ValidateUsername:
     """Валидаторы для username."""
 
     def validate_username(self, username):
-        pattern = re.compile(r'^[\w.@+-]+')
+        pattern = re.compile(r'^[\w.@+-]+\z')
 
         if pattern.fullmatch(username) is None:
             match = re.split(pattern, username)
