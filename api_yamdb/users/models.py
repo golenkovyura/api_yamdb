@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from api_yamdb.settings import EMAIL, USERNAME_NAME
+from api_yamdb.settings import EMAIL
 from .validators import ValidateUsername
 
 
@@ -17,9 +17,7 @@ class User(AbstractUser, ValidateUsername):
     )
 
     email = models.EmailField('Почта', max_length=EMAIL, unique=True)
-    username = models.CharField(
-        'Ник', max_length=USERNAME_NAME, unique=True
-    )
+
     role = models.CharField(
         'Роль',
         max_length=max([len(role) for role, name in ROLES]),
@@ -34,6 +32,10 @@ class User(AbstractUser, ValidateUsername):
     @property
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser or self.is_staff
+
+    @property
+    def is_user(self):
+        return self.role == self.USER
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username',)

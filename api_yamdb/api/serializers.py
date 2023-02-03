@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from reviews.models import Comment, Review, User
+from reviews.models import Comment, Review, Genre, Title, Category
+from users.models import User
+from api_yamdb.settings import EMAIL, USERNAME_NAME
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -22,7 +24,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         title_id = self.context.get('view').kwargs.get('title_id')
         if Review.objects.filter(author=author, title=title_id).exists():
             raise serializers.ValidationError(
-                'Вы уже оставляли отзыв на это произведение'
+                'Вы уже оставляли здесь отзыв.'
             )
         return data
 
@@ -41,9 +43,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
-    email = serializers.CharField(required=True)
-    role = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = User
@@ -54,22 +53,23 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
-                'Имя пользователя "me" не разрешено.'
+                'Выберите другое имя пользователя.'
             )
         return value
 
 
-
 class RegistrationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=EMAIL, required=True)
+    username = serializers.CharField(max_length=USERNAME_NAME, required=True)
 
     class Meta:
         model = User
-        fields = ('username', 'email',)
+        fields = ('username', 'email')
 
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
-                'Имя пользователя "me" не разрешено.'
+                'Выберите другое имя пользователя'
             )
         return value
 
@@ -84,16 +84,53 @@ class TokenSerializer(serializers.Serializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор для модели Category"""
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор для модели Genre"""
+
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug',)
 
 
 class TitlePostSerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор для модели Title (для записи данных)"""
+
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(), slug_field='slug', many=True
+    )
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(), slug_field='slug'
+    )
+    rating = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Title
+        fields = (
+            'name', 'year', 'description', 'genre', 'category', 'rating'
+        )
+        read_only_fields = ('id', 'rating')
+
+    def to_representation(self, value):
+        return TitleSerializer(value, context=self.context).data
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор для модели Title (для чтения данных)."""
+
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+    rating = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+        read_only_fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
+        )

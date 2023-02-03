@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from datetime import timedelta
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,6 +91,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 # Internationalization
 
 LANGUAGE_CODE = 'en-us'
@@ -114,8 +131,8 @@ LENGTH_TEXT_REVIEW = 250
 LENGTH_TEXT_COMMENT = 100
 LIST_PER_PAGE = 10
 
-USERNAME_NAME = 100
-EMAIL = 255
+USERNAME_NAME = 150
+EMAIL = 254
 
 LEN_FOR_NAME = 256
 LEN_FOR_SLUG = 50
@@ -125,3 +142,4 @@ CUT_TEXT = 30
 MIN_SCORE = 1
 MAX_SCORE = 10
 DEFAULT_SCORE = 1
+DEFAULT_FROM_EMAIL = 'YaMDb@YaMDb.ru'

@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import ValidationError
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
 
 from .permissions import IsSuperUserIsAdminIsModeratorIsAuthor
 from .permissions import (IsSuperUserIsAdminIsModeratorIsAuthor,
@@ -116,15 +117,15 @@ def register_user(request):
 
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    try:
-        user, _ = User.objects.get_or_create(**serializer.validated_data)
-    except IntegrityError:
-        raise ValidationError('username или email заняты!')
+    username = request.data.get("username")
+    email = request.data.get("email")
+    user, created = User.objects.get_or_create(username=username, email=email)
     confirmation_code = default_token_generator.make_token(user)
+
     send_mail(
         subject='Регистрация в проекте YaMDb.',
         message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=DEFAULT_FROM_EMAIL,
         recipient_list=[user.email]
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -158,20 +159,19 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
-    lookup_value_regex = '[^/]+'
 
     @action(
-        methods=['get', 'patch'],
-        detail=False, url_path='me',
-        permission_classes=[IsAuthenticated],
+        detail=False, methods=['get', 'patch'],
+        url_path='me', url_name='me',
+        permission_classes=(IsAuthenticated,)
     )
     def get_edit_user(self, request):
-        user = request.user
-        serializer = self.get_serializer(user)
+        serializer = UserSerializer(request.user)
         if request.method == 'PATCH':
-            serializer = self.get_serializer(
-                user, data=request.data, partial=True
+            serializer = UserSerializer(
+                request.user, data=request.data, partial=True
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_200_OK)
