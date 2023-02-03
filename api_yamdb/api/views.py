@@ -121,12 +121,12 @@ def register_user(request):
     email = request.data.get("email")
     user, created = User.objects.get_or_create(username=username, email=email)
     confirmation_code = default_token_generator.make_token(user)
-
+        
     send_mail(
-        subject='Регистрация в проекте YaMDb.',
-        message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email=DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email]
+    subject='Регистрация в проекте YaMDb.',
+    message=f'Ваш код подтверждения: {confirmation_code}',
+    from_email=DEFAULT_FROM_EMAIL,
+    recipient_list=[user.email]
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -175,3 +175,4 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    

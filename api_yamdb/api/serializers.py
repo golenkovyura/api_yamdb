@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from reviews.models import Comment, Review, Genre, Title, Category
-from users.models import User
+from reviews.models import Comment, Review, User
 from api_yamdb.settings import EMAIL, USERNAME_NAME
 
 
@@ -24,7 +23,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         title_id = self.context.get('view').kwargs.get('title_id')
         if Review.objects.filter(author=author, title=title_id).exists():
             raise serializers.ValidationError(
-                'Вы уже оставляли здесь отзыв.'
+                'Вы уже оставляли отзыв на это произведение'
             )
         return data
 
@@ -53,7 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
-                'Выберите другое имя пользователя.'
+                'Имя пользователя "me" не разрешено.'
             )
         return value
 
@@ -64,12 +63,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email')
+        fields = ('username', 'email',)
 
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
-                'Выберите другое имя пользователя'
+                'Имя пользователя "me" не разрешено.'
             )
         return value
 
@@ -84,53 +83,16 @@ class TokenSerializer(serializers.Serializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Category"""
-
-    class Meta:
-        model = Category
-        fields = ('name', 'slug',)
+    pass
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Genre"""
-
-    class Meta:
-        model = Genre
-        fields = ('name', 'slug',)
+    pass
 
 
 class TitlePostSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Title (для записи данных)"""
-
-    genre = serializers.SlugRelatedField(
-        queryset=Genre.objects.all(), slug_field='slug', many=True
-    )
-    category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(), slug_field='slug'
-    )
-    rating = serializers.IntegerField(required=False)
-
-    class Meta:
-        model = Title
-        fields = (
-            'name', 'year', 'description', 'genre', 'category', 'rating'
-        )
-        read_only_fields = ('id', 'rating')
-
-    def to_representation(self, value):
-        return TitleSerializer(value, context=self.context).data
+    pass
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Title (для чтения данных)."""
-
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
-    rating = serializers.IntegerField(required=False)
-
-    class Meta:
-        model = Title
-        fields = '__all__'
-        read_only_fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
-        )
+    pass
