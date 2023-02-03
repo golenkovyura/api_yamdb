@@ -114,19 +114,19 @@ class TitleViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def register_user(request):
     """Функция регистрации user, генерации и отправки кода на почту"""
-
+    
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    username = request.data.get("username")
-    email = request.data.get("email")
-    user, created = User.objects.get_or_create(username=username, email=email)
+    try:
+        user, _ = User.objects.get_or_create(**serializer.validated_data)
+    except IntegrityError:
+        raise ValidationError('username или email заняты!')
     confirmation_code = default_token_generator.make_token(user)
-        
     send_mail(
-    subject='Регистрация в проекте YaMDb.',
-    message=f'Ваш код подтверждения: {confirmation_code}',
-    from_email=DEFAULT_FROM_EMAIL,
-    recipient_list=[user.email]
+        subject='Регистрация в проекте YaMDb.',
+        message=f'Ваш код подтверждения: {confirmation_code}',
+        from_email=DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email]
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -165,14 +165,16 @@ class UserViewSet(viewsets.ModelViewSet):
         url_path='me', url_name='me',
         permission_classes=(IsAuthenticated,)
     )
+
     def get_edit_user(self, request):
-        serializer = UserSerializer(request.user)
-        if request.method == 'PATCH':
-            serializer = UserSerializer(
-                request.user, data=request.data, partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+        user = self.request.user
+        if request.method == "GET":
+            serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+        serializer = UserSerializer(
+            user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
