@@ -1,7 +1,7 @@
 from api_yamdb.settings import LIST_PER_PAGE
 from django.contrib import admin
 
-from reviews.models import Comment, Review, User
+from reviews.models import Comment, Review
 
 
 @admin.register(Review)

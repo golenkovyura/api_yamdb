@@ -1,11 +1,11 @@
-from api_yamdb.settings import LENGTH_TEXT_COMMENT, LENGTH_TEXT_REVIEW
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import LEN_FOR_NAME, CUT_TEXT
+from api_yamdb.settings import (LEN_FOR_NAME, CUT_TEXT,
+                                LENGTH_TEXT_COMMENT, LENGTH_TEXT_REVIEW)
 from users.models import User
-from .base_models import BaseModelGenreCategory
-from .validators import validate_year
+from reviews.base_models import BaseModelGenreCategory
+from reviews.validators import validate_year
 
 
 class Category(BaseModelGenreCategory):

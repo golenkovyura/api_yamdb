@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from reviews.models import Comment, Review, Category, Genre, Title
+
 from api_yamdb.settings import EMAIL, USERNAME_NAME
 from users.models import User
+from reviews.models import Comment, Review, Category, Genre, Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):

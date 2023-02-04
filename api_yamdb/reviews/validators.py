@@ -7,5 +7,5 @@ def validate_year(value):
     """Валидатор для года произведения."""
     current_year = dt.date.today().year
     if value > current_year:
-        raise ValidationError('Такой год еще не наступил.')
+        raise ValidationError(f'Год еще не наступил, сейчас {current_year}')
     return value

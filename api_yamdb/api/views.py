@@ -1,8 +1,6 @@
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets
 from rest_framework import permissions, viewsets, status, filters
-from reviews.models import Review, Title
 from django.db.models import Avg
 from rest_framework.decorators import action, api_view
 from django.db import IntegrityError
@@ -12,19 +10,18 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import ValidationError
-from api_yamdb.settings import DEFAULT_FROM_EMAIL
 
-from .permissions import IsSuperUserIsAdminIsModeratorIsAuthor
-from .permissions import (IsSuperUserIsAdminIsModeratorIsAuthor,
-                          IsAdminOrReadOnly, IsAdmin)
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, RegistrationSerializer,
-                          ReviewSerializer, TitlePostSerializer,
-                          TitleSerializer, TokenSerializer, UserSerializer)
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
+from api.permissions import (IsSuperUserIsAdminIsModeratorIsAuthor,
+                             IsAdminOrReadOnly, IsAdmin)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, RegistrationSerializer,
+                             ReviewSerializer, TitlePostSerializer,
+                             TitleSerializer, TokenSerializer, UserSerializer)
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .mixins import ListCreateDestroyGenericViewSet
-from .filters import TitleFilter
+from api.mixins import ListCreateDestroyGenericViewSet
+from api.filters import TitleFilter
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -117,16 +114,16 @@ def register_user(request):
 
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    username = request.data.get("username")
-    email = request.data.get("email")
-    user, created = User.objects.get_or_create(username=username, email=email)
+    try:
+        user, _ = User.objects.get_or_create(**serializer.validated_data)
+    except IntegrityError:
+        raise ValidationError('username или email заняты!')
     confirmation_code = default_token_generator.make_token(user)
-        
     send_mail(
-    subject='Регистрация в проекте YaMDb.',
-    message=f'Ваш код подтверждения: {confirmation_code}',
-    from_email=DEFAULT_FROM_EMAIL,
-    recipient_list=[user.email]
+        subject='Регистрация в проекте YaMDb.',
+        message=f'Ваш код подтверждения: {confirmation_code}',
+        from_email=DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email]
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -166,13 +163,14 @@ class UserViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def get_edit_user(self, request):
-        serializer = UserSerializer(request.user)
-        if request.method == 'PATCH':
-            serializer = UserSerializer(
-                request.user, data=request.data, partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+        user = self.request.user
+        if request.method == "GET":
+            serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+        serializer = UserSerializer(
+            user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
