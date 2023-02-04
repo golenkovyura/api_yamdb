@@ -111,7 +111,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def register_user(request):
     """Функция регистрации user, генерации и отправки кода на почту"""
-    
+
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     try:
@@ -162,7 +162,6 @@ class UserViewSet(viewsets.ModelViewSet):
         url_path='me', url_name='me',
         permission_classes=(IsAuthenticated,)
     )
-
     def get_edit_user(self, request):
         user = self.request.user
         if request.method == "GET":
