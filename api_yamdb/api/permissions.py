@@ -17,8 +17,6 @@ class IsSuperUserIsAdminIsModeratorIsAuthor(permissions.BasePermission):
     с ролью admin или moderator, а также автору объекта.
     """
 
-    pass
-
 
 class IsAdmin(permissions.BasePermission):
     """Проверка, что админ или суперюзер"""

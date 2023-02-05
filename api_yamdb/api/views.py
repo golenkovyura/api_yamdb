@@ -1,27 +1,26 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import permissions, viewsets
-from rest_framework import permissions, viewsets, status, filters
-from django.db.models import Avg
-from rest_framework.decorators import action, api_view
-from django.db import IntegrityError
-from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail
+from django.db import IntegrityError
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from api_yamdb.settings import DEFAULT_FROM_EMAIL
-from api.permissions import (IsSuperUserIsAdminIsModeratorIsAuthor,
-                             IsAdminOrReadOnly, IsAdmin)
+from api.filters import TitleFilter
+from api.mixins import ListCreateDestroyGenericViewSet
+from api.permissions import (IsAdmin, IsAdminOrReadOnly,
+                             IsSuperUserIsAdminIsModeratorIsAuthor)
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, RegistrationSerializer,
                              ReviewSerializer, TitlePostSerializer,
                              TitleSerializer, TokenSerializer, UserSerializer)
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from api.mixins import ListCreateDestroyGenericViewSet
-from api.filters import TitleFilter
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -156,6 +155,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     @action(
         detail=False, methods=['get', 'patch'],

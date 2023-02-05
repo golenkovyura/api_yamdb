@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from api_yamdb.settings import EMAIL, USERNAME_NAME
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
-from reviews.models import Comment, Review, Category, Genre, Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -61,7 +61,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class RegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=EMAIL, required=True)
-    username = serializers.CharField(max_length=USERNAME_NAME, required=True)
+    username = serializers.RegexField(max_length=USERNAME_NAME,
+                                      regex=r'^[\w.@+-]+\Z', required=True)
 
     class Meta:
         model = User

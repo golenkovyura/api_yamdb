@@ -2,10 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from api_yamdb.settings import EMAIL
-from users.validators import ValidateUsername
 
 
-class User(AbstractUser, ValidateUsername):
+class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
