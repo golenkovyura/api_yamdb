@@ -85,6 +85,6 @@ http://127.0.0.1:8000/redoc/
 ## Авторы:
 [Юрий Голенков](https://github.com/golenkovyura)
 
-[Дмитрий Соколов](https://github.com/SocoDi)
+[Дмитрий Соколов](https://github.com/SokoDi)
 
 [Александр Джуманов](https://github.com/AlexDjum)
