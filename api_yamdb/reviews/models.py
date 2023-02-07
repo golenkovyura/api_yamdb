@@ -9,7 +9,6 @@ from users.models import User
 
 
 class Category(BaseModelGenreCategory):
-    id = models.AutoField(primary_key=True)
 
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'категория'
@@ -49,7 +48,6 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    id = models.AutoField(primary_key=True)
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(
