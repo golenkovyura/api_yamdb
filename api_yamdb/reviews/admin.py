@@ -1,6 +1,5 @@
+from django.conf import settings
 from django.contrib import admin
-
-from api_yamdb.settings import LIST_PER_PAGE
 from reviews.models import Comment, Review
 
 
@@ -18,7 +17,7 @@ class ReviewAdmin(admin.ModelAdmin):
     )
     empty_value_display = 'Значение отсутствует'
     list_filter = ('author', 'score', 'pub_date')
-    list_per_page = LIST_PER_PAGE
+    list_per_page = settings.LIST_PER_PAGE
     search_fields = ('author',)
 
 
@@ -35,5 +34,5 @@ class CommentAdmin(admin.ModelAdmin):
     )
     empty_value_display = 'Значение отсутствует'
     list_filter = ('author', 'pub_date')
-    list_per_page = LIST_PER_PAGE
+    list_per_page = settings.LIST_PER_PAGE
     search_fields = ('author',)

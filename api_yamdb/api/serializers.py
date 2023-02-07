@@ -1,6 +1,5 @@
+from django.conf import settings
 from rest_framework import serializers
-
-from api_yamdb.settings import EMAIL, USERNAME_NAME
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -8,8 +7,10 @@ from users.models import User
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Review."""
 
-    author = serializers.StringRelatedField(
-        read_only=True
+    author = serializers.SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
     )
 
     class Meta:
@@ -33,8 +34,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор объектов класса Comment."""
 
-    author = serializers.StringRelatedField(
-        read_only=True
+    author = serializers.SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
     )
 
     class Meta:
@@ -44,7 +47,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = (
@@ -60,8 +62,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=EMAIL, required=True)
-    username = serializers.RegexField(max_length=USERNAME_NAME,
+    email = serializers.EmailField(max_length=settings.EMAIL, required=True)
+    username = serializers.RegexField(max_length=settings.USERNAME_NAME,
                                       regex=r'^[\w.@+-]+\Z', required=True)
 
     class Meta:
