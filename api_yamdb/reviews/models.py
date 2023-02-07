@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import (CUT_TEXT, LEN_FOR_NAME, LENGTH_TEXT_COMMENT,
+from api_yamdb.settings import (LEN_FOR_NAME, LENGTH_TEXT_COMMENT,
                                 LENGTH_TEXT_REVIEW)
 from reviews.base_models import BaseModelGenreCategory
 from reviews.validators import validate_year
@@ -16,7 +16,6 @@ class Category(BaseModelGenreCategory):
 
 
 class Genre(BaseModelGenreCategory):
-    id = models.AutoField(primary_key=True)
 
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'жанр'
@@ -24,7 +23,6 @@ class Genre(BaseModelGenreCategory):
 
 
 class Title(models.Model):
-    id = models.AutoField(primary_key=True)
     name = models.CharField('Название', max_length=LEN_FOR_NAME)
     year = models.PositiveSmallIntegerField(
         'Год', db_index=True, validators=[validate_year])
@@ -59,21 +57,6 @@ class GenreTitle(models.Model):
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
-
-
-class BaseReviewCommentModel(models.Model):
-    """Базовый абстрактный класс для Review и Comment."""
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name='Автор')
-    text = models.TextField('Текст')
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
-    class Meta:
-        abstract = True
-        ordering = ('-pub_date',)
-
-    def __str__(self) -> str:
-        return self.text[:CUT_TEXT]
 
 
 class Review(models.Model):
