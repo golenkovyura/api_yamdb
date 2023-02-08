@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from api_yamdb.settings import EMAIL
+from api.validators import validate_user
 
 
 class User(AbstractUser):
@@ -15,26 +16,22 @@ class User(AbstractUser):
         (USER, 'Пользователь'),
     )
 
-    email = models.EmailField('Почта', max_length=EMAIL, unique=True)
+    email = models.EmailField('Почта', max_length=settings.EMAIL, unique=True)
 
     role = models.CharField(
         'Роль',
-        max_length=max([len(role) for role, name in ROLES]),
+        max_length=255,
         choices=ROLES, default=USER
     )
     bio = models.TextField('Об авторе', null=True, blank=True)
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.role == self.MODERATOR or self.is_staff
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN or self.is_superuser or self.is_staff
-
-    @property
-    def is_user(self):
-        return self.role == self.USER
+        return self.role == self.ADMIN or self.is_superuser
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username',)
@@ -43,6 +40,9 @@ class User(AbstractUser):
         ordering = ('id',)
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
+
+    def validate_unique(self, value):
+        return validate_user(value)
 
     def __str__(self):
         return self.username

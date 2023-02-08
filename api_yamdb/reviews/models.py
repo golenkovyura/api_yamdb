@@ -1,15 +1,13 @@
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import (CUT_TEXT, LEN_FOR_NAME, LENGTH_TEXT_COMMENT,
-                                LENGTH_TEXT_REVIEW)
-from reviews.base_models import BaseModelGenreCategory
+from reviews.base_models import BaseModelGenreCategory, BaseReviewCommentModel
 from reviews.validators import validate_year
 from users.models import User
 
 
 class Category(BaseModelGenreCategory):
-    id = models.AutoField(primary_key=True)
 
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'категория'
@@ -26,7 +24,7 @@ class Genre(BaseModelGenreCategory):
 
 class Title(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField('Название', max_length=LEN_FOR_NAME)
+    name = models.CharField('Название', max_length=settings.LEN_FOR_NAME)
     year = models.PositiveSmallIntegerField(
         'Год', db_index=True, validators=[validate_year])
     description = models.TextField('Описание', null=True, blank=True)
@@ -49,7 +47,6 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    id = models.AutoField(primary_key=True)
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(
@@ -63,22 +60,7 @@ class GenreTitle(models.Model):
         verbose_name_plural = 'жанры'
 
 
-class BaseReviewCommentModel(models.Model):
-    """Базовый абстрактный класс для Review и Comment."""
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name='Автор')
-    text = models.TextField('Текст')
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
-    class Meta:
-        abstract = True
-        ordering = ('-pub_date',)
-
-    def __str__(self) -> str:
-        return self.text[:CUT_TEXT]
-
-
-class Review(models.Model):
+class Review(BaseReviewCommentModel):
     """Класс отзывов."""
 
     id = models.AutoField(primary_key=True)
@@ -91,7 +73,7 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Aвтор'
     )
-    score = models.PositiveIntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Oценка',
         validators=[
             MinValueValidator(
@@ -129,10 +111,10 @@ class Review(models.Model):
         )
 
     def __str__(self):
-        return self.text[:LENGTH_TEXT_REVIEW]
+        return self.text[:settings.LENGTH_TEXT_REVIEW]
 
 
-class Comment(models.Model):
+class Comment(BaseReviewCommentModel):
     """Класс комментариев."""
 
     id = models.AutoField(primary_key=True)
@@ -163,4 +145,4 @@ class Comment(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text[:LENGTH_TEXT_COMMENT]
+        return self.text[:settings.LENGTH_TEXT_COMMENT]

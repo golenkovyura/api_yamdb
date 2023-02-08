@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api_yamdb.settings import EMAIL, USERNAME_NAME
+from api.validators import validate_user
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -8,8 +8,10 @@ from users.models import User
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Review."""
 
-    author = serializers.StringRelatedField(
-        read_only=True
+    author = serializers.SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
     )
 
     class Meta:
@@ -33,8 +35,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор объектов класса Comment."""
 
-    author = serializers.StringRelatedField(
-        read_only=True
+    author = serializers.SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
     )
 
     class Meta:
@@ -52,28 +56,17 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Введите другое имя пользователя.'
-            )
-        return value
+        return validate_user(value)
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=EMAIL, required=True)
-    username = serializers.RegexField(max_length=USERNAME_NAME,
-                                      regex=r'^[\w.@+-]+\Z', required=True)
 
     class Meta:
         model = User
         fields = ('username', 'email',)
 
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Введите другое имя пользователя.'
-            )
-        return value
+        return validate_user(value)
 
 
 class TokenSerializer(serializers.Serializer):
