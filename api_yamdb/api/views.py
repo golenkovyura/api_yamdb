@@ -1,16 +1,13 @@
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, permissions, status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.exceptions import ValidationError
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import mixins, viewsets
-
 
 from api.filters import TitleFilter
 from api.mixins import ListCreateDestroyGenericViewSet
@@ -20,7 +17,6 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, RegistrationSerializer,
                              ReviewSerializer, TitlePostSerializer,
                              TitleSerializer, TokenSerializer, UserSerializer)
-from django.conf import settings
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
@@ -112,13 +108,12 @@ class TitleViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def register_user(request):
     """Функция регистрации user, генерации и отправки кода на почту"""
-    
+
     serializer = RegistrationSerializer(data=request.data)
-    if User.objects.filter(
-                username=request.data.get('username'),
-                email=request.data.get('email')
-        ).exists():
-            return Response(request.data, status=status.HTTP_200_OK)
+    if User.objects.filter(username=request.data.get('username'),
+                           email=request.data.get('email')
+                           ).exists():
+        return Response(request.data, status=status.HTTP_200_OK)
     serializer.is_valid(raise_exception=True)
     username = request.data.get("username")
     email = request.data.get("email")
@@ -131,7 +126,7 @@ def register_user(request):
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email]
     )
-    return Response(serializer.data, status=status.HTTP_200_OK)   
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -184,4 +179,3 @@ class UserViewSet(mixins.CreateModelMixin,
         serializer.is_valid(raise_exception=True)
         serializer.save(role=user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-        

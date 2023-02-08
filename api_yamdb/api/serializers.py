@@ -1,8 +1,9 @@
-from django.conf import settings
 from rest_framework import serializers
+
+from api.validators import validate_user
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
-from api.validators import validate_user
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Review."""

@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from django.conf import settings
+from api.validators import validate_user
 
 
 class User(AbstractUser):
@@ -32,7 +33,6 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser
 
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username',)
 
@@ -40,6 +40,9 @@ class User(AbstractUser):
         ordering = ('id',)
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
+
+    def validate_unique(self, value):
+        return validate_user(value)
 
     def __str__(self):
         return self.username
