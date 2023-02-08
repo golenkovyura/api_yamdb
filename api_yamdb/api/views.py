@@ -4,11 +4,13 @@ from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, status, viewsets
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import mixins, viewsets
+
 
 from api.filters import TitleFilter
 from api.mixins import ListCreateDestroyGenericViewSet
@@ -18,7 +20,7 @@ from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, RegistrationSerializer,
                              ReviewSerializer, TitlePostSerializer,
                              TitleSerializer, TokenSerializer, UserSerializer)
-from api_yamdb.settings import DEFAULT_FROM_EMAIL
+from django.conf import settings
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
@@ -110,21 +112,26 @@ class TitleViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def register_user(request):
     """Функция регистрации user, генерации и отправки кода на почту"""
-
+    
     serializer = RegistrationSerializer(data=request.data)
+    if User.objects.filter(
+                username=request.data.get('username'),
+                email=request.data.get('email')
+        ).exists():
+            return Response(request.data, status=status.HTTP_200_OK)
     serializer.is_valid(raise_exception=True)
-    try:
-        user, _ = User.objects.get_or_create(**serializer.validated_data)
-    except IntegrityError:
-        raise ValidationError('username или email заняты!')
+    username = request.data.get("username")
+    email = request.data.get("email")
+    user, _ = User.objects.get_or_create(username=username, email=email)
     confirmation_code = default_token_generator.make_token(user)
+
     send_mail(
         subject='Регистрация в проекте YaMDb.',
         message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email=DEFAULT_FROM_EMAIL,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email]
     )
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.data, status=status.HTTP_200_OK)   
 
 
 @api_view(['POST'])
@@ -146,9 +153,12 @@ def get_token(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """Вьюсет для модели User"""
-
+class UserViewSet(mixins.CreateModelMixin,
+                  mixins.ListModelMixin,
+                  mixins.UpdateModelMixin,
+                  mixins.DestroyModelMixin,
+                  mixins.RetrieveModelMixin,
+                  viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
@@ -174,3 +184,4 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(role=user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+        

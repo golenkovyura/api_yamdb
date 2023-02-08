@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
-
+from api.validators import validate_user
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Review."""
@@ -47,6 +47,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = (
@@ -54,28 +55,17 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Введите другое имя пользователя.'
-            )
-        return value
+        return validate_user(value)
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=settings.EMAIL, required=True)
-    username = serializers.RegexField(max_length=settings.USERNAME_NAME,
-                                      regex=r'^[\w.@+-]+\Z', required=True)
 
     class Meta:
         model = User
         fields = ('username', 'email',)
 
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Введите другое имя пользователя.'
-            )
-        return value
+        return validate_user(value)
 
 
 class TokenSerializer(serializers.Serializer):
