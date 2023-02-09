@@ -4,18 +4,15 @@ from django.db import models
 
 from reviews.base_models import BaseModelGenreCategory, BaseReviewCommentModel
 from reviews.validators import validate_year
-from users.models import User
 
 
 class Category(BaseModelGenreCategory):
-
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'категории'
 
 
 class Genre(BaseModelGenreCategory):
-
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
@@ -47,16 +44,6 @@ class Title(models.Model):
 class Review(BaseReviewCommentModel):
     """Класс отзывов."""
 
-    id = models.AutoField(primary_key=True)
-    text = models.TextField(
-        verbose_name='Текст'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Aвтор'
-    )
     score = models.PositiveSmallIntegerField(
         verbose_name='Oценка',
         validators=[
@@ -70,11 +57,7 @@ class Review(BaseReviewCommentModel):
             ),
         ]
     )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
-        db_index=True
-    )
+
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -101,21 +84,6 @@ class Review(BaseReviewCommentModel):
 class Comment(BaseReviewCommentModel):
     """Класс комментариев."""
 
-    id = models.AutoField(primary_key=True)
-    text = models.TextField(
-        verbose_name='Текст'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Aвтор'
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
-        db_index=True
-    )
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
