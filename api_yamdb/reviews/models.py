@@ -15,7 +15,6 @@ class Category(BaseModelGenreCategory):
 
 
 class Genre(BaseModelGenreCategory):
-    id = models.AutoField(primary_key=True)
 
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'жанр'
@@ -23,12 +22,11 @@ class Genre(BaseModelGenreCategory):
 
 
 class Title(models.Model):
-    id = models.AutoField(primary_key=True)
     name = models.CharField('Название', max_length=settings.LEN_FOR_NAME)
     year = models.PositiveSmallIntegerField(
         'Год', db_index=True, validators=[validate_year])
     description = models.TextField('Описание', null=True, blank=True)
-    genre = models.ManyToManyField(Genre, through='GenreTitle')
+    genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -44,20 +42,6 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class GenreTitle(models.Model):
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE)
-    genre = models.ForeignKey(
-        Genre, on_delete=models.CASCADE, verbose_name='жанры')
-
-    def __str__(self):
-        return f'{self.title} {self.genre}'
-
-    class Meta:
-        verbose_name = 'жанр'
-        verbose_name_plural = 'жанры'
 
 
 class Review(BaseReviewCommentModel):
