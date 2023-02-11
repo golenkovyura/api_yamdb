@@ -4,31 +4,26 @@ from django.db import models
 
 from reviews.base_models import BaseModelGenreCategory, BaseReviewCommentModel
 from reviews.validators import validate_year
-from users.models import User
 
 
 class Category(BaseModelGenreCategory):
-
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'категории'
 
 
 class Genre(BaseModelGenreCategory):
-    id = models.AutoField(primary_key=True)
-
     class Meta(BaseModelGenreCategory.Meta):
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
 
 
 class Title(models.Model):
-    id = models.AutoField(primary_key=True)
     name = models.CharField('Название', max_length=settings.LEN_FOR_NAME)
     year = models.PositiveSmallIntegerField(
         'Год', db_index=True, validators=[validate_year])
     description = models.TextField('Описание', null=True, blank=True)
-    genre = models.ManyToManyField(Genre, through='GenreTitle')
+    genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -46,33 +41,9 @@ class Title(models.Model):
         return self.name
 
 
-class GenreTitle(models.Model):
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE)
-    genre = models.ForeignKey(
-        Genre, on_delete=models.CASCADE, verbose_name='жанры')
-
-    def __str__(self):
-        return f'{self.title} {self.genre}'
-
-    class Meta:
-        verbose_name = 'жанр'
-        verbose_name_plural = 'жанры'
-
-
 class Review(BaseReviewCommentModel):
     """Класс отзывов."""
 
-    id = models.AutoField(primary_key=True)
-    text = models.TextField(
-        verbose_name='Текст'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Aвтор'
-    )
     score = models.PositiveSmallIntegerField(
         verbose_name='Oценка',
         validators=[
@@ -86,11 +57,7 @@ class Review(BaseReviewCommentModel):
             ),
         ]
     )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
-        db_index=True
-    )
+
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -117,21 +84,6 @@ class Review(BaseReviewCommentModel):
 class Comment(BaseReviewCommentModel):
     """Класс комментариев."""
 
-    id = models.AutoField(primary_key=True)
-    text = models.TextField(
-        verbose_name='Текст'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Aвтор'
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
-        db_index=True
-    )
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
