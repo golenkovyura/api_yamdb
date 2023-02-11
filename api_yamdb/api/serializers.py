@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
+from api.validators import validate_user
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
-from api.validators import validate_user
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -67,6 +67,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         return validate_user(value)
+
+    def validate_double(self, data):
+        username = data.get('username')
+        email = data.get('email')
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError(
+                'никнайм'
+            )
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                'почта'
+            )
+        return data
 
 
 class TokenSerializer(serializers.Serializer):
