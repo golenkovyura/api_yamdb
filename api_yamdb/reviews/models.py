@@ -48,11 +48,11 @@ class Review(BaseReviewCommentModel):
         verbose_name='Oценка',
         validators=[
             MinValueValidator(
-                1,
+                settings.MIN_SCORE,
                 message='Введенная оценка ниже допустимой'
             ),
             MaxValueValidator(
-                10,
+                settings.MAX_SCORE,
                 message='Введенная оценка выше допустимой'
             ),
         ]

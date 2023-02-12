@@ -27,7 +27,7 @@ class User(AbstractUser):
 
     role = models.CharField(
         'Роль',
-        max_length=255,
+        max_length=settings.LEN_FOR_NAME,
         choices=ROLES, default=USER
     )
     bio = models.TextField('Об авторе', null=True, blank=True)
