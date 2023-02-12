@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, permissions, status, viewsets
@@ -110,14 +111,14 @@ def register_user(request):
     """Функция регистрации user, генерации и отправки кода на почту"""
 
     serializer = RegistrationSerializer(data=request.data)
-    if User.objects.filter(username=request.data.get('username'),
-                           email=request.data.get('email')
-                           ).exists():
-        return Response(request.data, status=status.HTTP_200_OK)
     serializer.is_valid(raise_exception=True)
     username = request.data.get("username")
     email = request.data.get("email")
-    user, _ = User.objects.get_or_create(username=username, email=email)
+    try:
+        user, _ = User.objects.get_or_create(username=username, email=email)
+    except IntegrityError:
+        return Response('Ошибка при попытке создать новую запись',
+                        status=status.HTTP_400_BAD_REQUEST)
     confirmation_code = default_token_generator.make_token(user)
 
     send_mail(

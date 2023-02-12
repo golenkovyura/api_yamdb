@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
 from django.db import models
 
-from api.validators import validate_user
+from api.validators import username_validator, validate_user
 
 
 class User(AbstractUser):
@@ -16,18 +15,20 @@ class User(AbstractUser):
         (MODERATOR, 'Модератор'),
         (USER, 'Пользователь'),
     )
-    username = models.CharField(
-        'Имя', max_length=settings.USERNAME_NAME,
-        validators=[RegexValidator(r'^[\w.@+-]+\Z'),
-                    validate_user],
-        unique=True,
-    )
+    username = models.CharField(max_length=settings.USERNAME_NAME,
+                                validators=[username_validator,
+                                            validate_user],
+                                unique=True)
 
-    email = models.EmailField('Почта', max_length=settings.EMAIL, unique=True)
+    email = models.EmailField(max_length=settings.EMAIL, unique=True)
 
     role = models.CharField(
         'Роль',
+<<<<<<< HEAD
         max_length=settings.LEN_FOR_NAME,
+=======
+        max_length=settings.ROLE_TEXT,
+>>>>>>> 7fed67e29e19d8b21c2f2e2eae3a03d5e2db2a1a
         choices=ROLES, default=USER
     )
     bio = models.TextField('Об авторе', null=True, blank=True)
@@ -40,8 +41,6 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('username',)
 
     class Meta:
         ordering = ('id',)
