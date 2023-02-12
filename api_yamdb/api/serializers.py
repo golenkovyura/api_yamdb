@@ -1,6 +1,7 @@
+from django.conf import settings
 from rest_framework import serializers
 
-from api.validators import validate_user
+from api.validators import username_validator, validate_user
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -60,26 +61,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=settings.USERNAME_NAME,
+                                     required=True,
+                                     validators=[username_validator,
+                                                 validate_user])
+
+    email = serializers.EmailField(required=True, max_length=settings.EMAIL)
 
     class Meta:
         model = User
         fields = ('username', 'email',)
-
-    def validate_username(self, value):
-        return validate_user(value)
-
-    def validate_double(self, data):
-        username = data.get('username')
-        email = data.get('email')
-        if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError(
-                'никнайм'
-            )
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                'почта'
-            )
-        return data
 
 
 class TokenSerializer(serializers.Serializer):
