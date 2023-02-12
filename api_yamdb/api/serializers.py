@@ -61,7 +61,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-
     username = serializers.CharField(max_length=settings.USERNAME_NAME,
                                      required=True,
                                      validators=[username_validator,

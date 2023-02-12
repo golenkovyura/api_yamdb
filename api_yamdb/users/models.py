@@ -37,8 +37,6 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('username',)
 
     class Meta:
         ordering = ('id',)
