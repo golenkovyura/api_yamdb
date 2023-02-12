@@ -72,22 +72,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email',)
 
-    def validate_username(self, value):
-        return validate_user(value)
-
-    def validate_double(self, data):
-        username = data.get('username')
-        email = data.get('email')
-        if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError(
-                'никнайм'
-            )
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                'почта'
-            )
-        return data
-
 
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
