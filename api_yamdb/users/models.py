@@ -24,11 +24,7 @@ class User(AbstractUser):
 
     role = models.CharField(
         'Роль',
-<<<<<<< HEAD
-        max_length=settings.LEN_FOR_NAME,
-=======
         max_length=settings.ROLE_TEXT,
->>>>>>> 7fed67e29e19d8b21c2f2e2eae3a03d5e2db2a1a
         choices=ROLES, default=USER
     )
     bio = models.TextField('Об авторе', null=True, blank=True)
@@ -40,7 +36,6 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser
-
 
     class Meta:
         ordering = ('id',)
